@@ -26,7 +26,7 @@ import setuptools.command.build_py
 import setuptools.command.develop
 
 TOP_DIR = os.path.realpath(os.path.dirname(__file__))
-CMAKE_BUILD_DIR = os.path.join(TOP_DIR, ".setuptools-cmake-build")
+CMAKE_BUILD_DIR = os.path.join(TOP_DIR, "redhat-linux-build")
 
 WINDOWS = os.name == "nt"
 
@@ -156,6 +156,7 @@ class CmakeBuild(setuptools.Command):
         self.jobs = multiprocessing.cpu_count() if self.jobs is None else int(self.jobs)
 
     def run(self):
+        return
         os.makedirs(CMAKE_BUILD_DIR, exist_ok=True)
 
         with cd(CMAKE_BUILD_DIR):
