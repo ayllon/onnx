@@ -465,7 +465,7 @@ list(REMOVE_ITEM __tmp_srcs "${ONNX_ROOT}/onnx/cpp2py_export.cc")
 list(REMOVE_ITEM __tmp_srcs ${onnx_gtests_src})
 list(APPEND ONNX_SRCS ${__tmp_srcs})
 
-add_library(onnx_proto ${ONNX_PROTO_SRCS} ${ONNX_PROTO_HDRS})
+add_library(onnx_proto SHARED ${ONNX_PROTO_SRCS} ${ONNX_PROTO_HDRS})
 add_dependencies(onnx_proto gen_onnx_operators_proto gen_onnx_data_proto)
 target_include_directories(onnx_proto PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
@@ -498,6 +498,8 @@ else()
   set(ONNX_API_DEFINE "-DONNX_API=__attribute__\(\(__visibility__\(\"default\"\)\)\)")
   set_target_properties(onnx_proto PROPERTIES CXX_VISIBILITY_PRESET hidden)
   set_target_properties(onnx_proto PROPERTIES VISIBILITY_INLINES_HIDDEN 1)
+  set_target_properties(onnx_proto PROPERTIES VERSION ${ONNX_VERSION}
+                                            SOVERSION ${ONNX_VERSION})
 endif()
 target_compile_definitions(onnx_proto PRIVATE ${ONNX_API_DEFINE})
 
@@ -521,7 +523,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "AIX")
   # So, create a object library
   add_library(onnx OBJECT ${ONNX_SRCS})
 else()
-  add_library(onnx ${ONNX_SRCS})
+  add_library(onnx SHARED ${ONNX_SRCS})
+  set_target_properties(onnx PROPERTIES VERSION ${ONNX_VERSION}
+                                        SOVERSION ${ONNX_VERSION})
 endif()
 
 target_include_directories(onnx PUBLIC
@@ -704,6 +708,17 @@ install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/onnx
         FILES_MATCHING
         PATTERN "*.h")
 
+install(DIRECTORY ${ONNX_ROOT}/onnx
+        DESTINATION "${PY_SITEARCH}"
+        FILES_MATCHING
+        PATTERN "*.py"
+        PATTERN "test/*" EXCLUDE )
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/onnx
+        DESTINATION  "${PY_SITEARCH}"
+        FILES_MATCHING
+        PATTERN "*.py"
+        PATTERN "test/*" EXCLUDE )
+
 configure_file(
   ${PROJECT_SOURCE_DIR}/cmake/ONNXConfigVersion.cmake.in
   ${PROJECT_BINARY_DIR}/ONNXConfigVersion.cmake
@@ -721,6 +736,9 @@ install(EXPORT ONNXTargets DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/ONNX")
 install(TARGETS
   onnx onnx_proto
   EXPORT ONNXTargets DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(TARGETS
+  onnx_cpp2py_export
+  DESTINATION "${PY_SITEARCH}/onnx")
 
 if(ONNX_BUILD_TESTS)
   include(${ONNX_ROOT}/cmake/unittest.cmake)
