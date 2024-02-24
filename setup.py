@@ -25,7 +25,7 @@ import setuptools.command.develop
 TOP_DIR = os.path.realpath(os.path.dirname(__file__))
 SRC_DIR = os.path.join(TOP_DIR, "onnx")
 TP_DIR = os.path.join(TOP_DIR, "third_party")
-CMAKE_BUILD_DIR = os.path.join(TOP_DIR, ".setuptools-cmake-build")
+CMAKE_BUILD_DIR = os.path.join(TOP_DIR, "redhat-linux-build")
 PACKAGE_NAME = "onnx"
 
 WINDOWS = os.name == "nt"
@@ -147,7 +147,7 @@ class CmakeBuild(setuptools.Command):
 
     user_options = [("jobs=", "j", "Specifies the number of jobs to use with make")]
 
-    built = False
+    built = True
 
     def initialize_options(self):
         self.jobs = None
