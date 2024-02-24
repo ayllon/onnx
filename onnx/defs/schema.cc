@@ -17,8 +17,19 @@
 #include "onnx/common/assertions.h"
 #include "onnx/common/stl_backports.h"
 #include "onnx/defs/parser.h"
+#include "onnx/onnxruntime_fix.h"
 
 namespace ONNX_NAMESPACE {
+
+bool ONNXRuntimeFix::_static_registration_disabled = false;
+bool ONNXRuntimeFix::isStaticRegistrationDisabled() {
+  return _static_registration_disabled;
+}
+
+void ONNXRuntimeFix::disableStaticRegistration() {
+  _static_registration_disabled = true;
+}
+
 // -1 means ONNX schema hasn't been loaded yet
 // 0 means all versions of ONNX schema have been loaded
 // Other positive integer means the ONNX schemas for the specified version have been loaded
@@ -1061,6 +1072,9 @@ OpName_Domain_Version_Schema_Map& OpSchemaRegistry::map() {
   class SchemasRegisterer {
    public:
     SchemasRegisterer() {
+      // Check if static registration is actually disabled
+      if(ONNXRuntimeFix::isStaticRegistrationDisabled()) return;
+
       // In debug builds, the number of schema registered in this constructor
       // is compared against the number of calls to schema registration macros.
 #ifndef NDEBUG
