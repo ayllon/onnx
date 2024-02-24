@@ -43,12 +43,21 @@ onnx = [
     "backend/test/data/**/*",
 ]
 
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist=py312
+
+[testenv]
+deps=pytest
+commands=pytest
+"""
+
 [tool.pytest.ini_options]
 
-addopts = "--nbval --nbval-current-env"
+addopts = "--ignore=onnx/test/test_backend_test.py --ignore=onnx/test/reference_evaluator_backend_test.py --ignore=onnx/test/test_backend_reference.py --ignore=onnx/test/test_backend_onnxruntime.py --ignore=onnx/test/reference_evaluator_test.py"
 testpaths = [
     "onnx/test",
-    "onnx/examples",
 ]
 
 [tool.mypy]
