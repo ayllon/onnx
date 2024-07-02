@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import itertools
 import os
+import parameterized
 import shutil
 import tempfile
 import unittest
@@ -193,7 +194,7 @@ class TestLoadExternalDataSingleFile(TestLoadExternalDataBase):
     def test_save_external_invalid_single_file_data_and_check(
         self, use_absolute_path: bool, use_model_path: bool
     ) -> None:
-        model = onnx.load_model(self.model_filename, self.serialization_format)
+        model = onnx.load_model(self.model_filename)
 
         model_dir = os.path.join(self.temp_dir, "save_copy")
         os.mkdir(model_dir)
@@ -224,13 +225,13 @@ class TestLoadExternalDataSingleFile(TestLoadExternalDataBase):
             location=traversal_external_data_location,
         )
 
-        onnx.save_model(model, new_model_filepath, self.serialization_format)
+        onnx.save_model(model, new_model_filepath)
         if use_model_path:
             with self.assertRaises(onnx.checker.ValidationError):
-                _ = onnx.load_model(new_model_filepath, self.serialization_format)
+                _ = onnx.load_model(new_model_filepath)
         else:
             onnx_model = onnx.load_model(
-                new_model_filepath, self.serialization_format, load_external_data=False
+                new_model_filepath, load_external_data=False
             )
             with self.assertRaises(onnx.checker.ValidationError):
                 load_external_data_for_model(onnx_model, external_data_dir)
